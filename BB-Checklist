@@ -1,0 +1,182 @@
+Here's the cleaned-up and enhanced Bug Bounty Methodology, with some additional tools and resources included where necessary:
+
+---
+
+# Bug Bounty Methodology
+
+This methodology outlines the steps and tools necessary for various scopes in bug bounty hunting, including reconnaissance, user management, input handling, and application logic checks. The tools listed are industry-standard and commonly used for bug bounty activities.
+
+---
+
+## Recon Phase
+
+### Large Scope: Company with Multiple Domains
+
+- [ ] Get ASN for IP ranges: 
+    - Tools: [Amass](https://github.com/OWASP/Amass), [Asnlookup](https://github.com/yassineaboukir/Asnlookup), [Metabigor](https://github.com/j3ssie/metabigor), [BGP](https://bgp.he.net/)
+- [ ] Review latest [acquisitions](https://www.crunchbase.com/)
+- [ ] Get relationships by registrants:
+    - Tool: [ViewDNS](https://viewdns.info/reversewhois/)
+- [ ] Repeat "Medium Scope" process for each domain.
+
+---
+
+### Medium Scope: Single Domain
+
+- [ ] Subdomain enumeration: 
+    - Tools: [Amass](https://github.com/OWASP/Amass), [Subfinder](https://github.com/projectdiscovery/subfinder)
+- [ ] Subdomain bruteforce: 
+    - Tools: [PureDNS](https://github.com/d3mondev/puredns), [Wordlist](https://gist.github.com/six2dez/a307a04a222fab5a57466c51e1569acf)
+- [ ] Subdomain permutation: 
+    - Tools: [Gotator](https://github.com/Josue87/gotator), [Ripgen](https://github.com/resyncgg/ripgen), [Wordlist](https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4)
+- [ ] Identify alive subdomains:
+    - Tool: [Httpx](https://github.com/projectdiscovery/httpx)
+- [ ] Subdomain takeovers:
+    - Tool: [Nuclei Takeovers](https://github.com/projectdiscovery/nuclei-templates/tree/master/takeovers)
+- [ ] Cloud asset discovery:
+    - Tool: [CloudEnum](https://github.com/initstring/cloud_enum)
+- [ ] Shodan search
+- [ ] Zone transfer:
+    - Reference: [Pentest Book on DNS Enumeration](https://six2dez.gitbook.io/pentest-book/enumeration/ports#port-53-dns)
+- [ ] Recursive subdomain search
+- [ ] Screenshot subdomains:
+    - Tools: [Gowitness](https://github.com/sensepost/gowitness), [WebScreenshot](https://github.com/maaaaz/webscreenshot), [Aquatone](https://github.com/michenriksen/aquatone)
+
+---
+
+### Small Scope: Single Website
+
+- [ ] Identify web server, technologies, and database:
+    - Tool: [Httpx](https://github.com/projectdiscovery/httpx)
+- [ ] Locate common files like `/robots.txt`, `/crossdomain.xml`, `/sitemap.xml`, etc.
+- [ ] Review source code comments:
+    - Tool: Burp Engagement Tools
+- [ ] Directory enumeration:
+    - Tools: [FFUF](https://github.com/ffuf/ffuf), [OneListForAll Wordlist](https://github.com/six2dez/OneListForAll)
+- [ ] Find leaked IDs and emails:
+    - Tool: [Pwndb](https://github.com/davidtavarez/pwndb)
+- [ ] Identify WAF:
+    - Tools: [WhatWaf](https://github.com/Ekultek/WhatWaf), [Wafw00f](https://github.com/EnableSecurity/wafw00f)
+- [ ] Google and GitHub dorking:
+    - Tools: [Githound](https://github.com/tillson/git-hound), [GitDorks Go](https://github.com/damit5/gitdorks_go)
+- [ ] Get URLs:
+    - Tools: [Gau](https://github.com/lc/gau), [Waybackurls](https://github.com/tomnomnom/waybackurls), [Gospider](https://github.com/jaeles-project/gospider)
+- [ ] Check for vulnerable URLs:
+    - Tool: [GF Patterns](https://github.com/1ndianl33t/Gf-Patterns)
+- [ ] Automated XSS scanning:
+    - Tool: [Dalfox](https://github.com/hahwul/dalfox)
+- [ ] Locate admin and login panels
+- [ ] Broken link hijacking:
+    - Tool: [BLC](https://github.com/stevenvachon/broken-link-checker)
+- [ ] Get all JavaScript files:
+    - Tools: [SubJS](https://github.com/lc/subjs), [xnLinkFinder](https://github.com/xnl-h4ck3r/xnLinkFinder)
+- [ ] Analyze JS for hardcoded APIs and secrets:
+    - Tools: [Nuclei Tokens](https://github.com/projectdiscovery/nuclei-templates/tree/4e3f843e15c68f816f0ef6abce5d30b6cf6d4a30/exposures/tokens)
+- [ ] Run automated scanners:
+    - Tool: [Nuclei](https://github.com/projectdiscovery/nuclei)
+- [ ] Test CORS:
+    - Tools: [CORScanner](https://github.com/chenjj/CORScanner), [Corsy](https://github.com/s0md3v/Corsy)
+
+---
+
+## Network Recon
+
+- [ ] Check if ICMP packets are allowed
+- [ ] Check DMARC/SPF policies:
+    - Tool: [SpoofCheck](https://github.com/BishopFox/spoofcheck)
+- [ ] Open ports with [Shodan](https://www.shodan.io/)
+- [ ] Port scan:
+    - Tool: [Nmap](https://nmap.org/)
+- [ ] Check UDP ports:
+    - Tools: [Udp-proto-scanner](https://github.com/CiscoCXSecurity/udp-proto-scanner), Nmap
+- [ ] SSL/TLS testing:
+    - Tool: [TestSSL](https://github.com/drwetter/testssl.sh)
+- [ ] Password spraying for discovered services:
+    - Tool: [Brutespray](https://github.com/x90skysn3k/brutespray)
+
+---
+
+## User Management
+
+### Registration
+
+- [ ] Duplicate registration (using variants like `user+1@mail.com`)
+- [ ] Username enumeration
+- [ ] Weak password policy checks
+- [ ] Rate-limiting on registration
+- [ ] Check for XSS in username or email fields
+
+### Authentication
+
+- [ ] Username enumeration on login forms
+- [ ] Password guessing resilience
+- [ ] Account recovery mechanism
+- [ ] Session management and resilience to brute force
+- [ ] Check OAuth and SAML login mechanisms for flaws
+- [ ] Test JWT (JSON Web Token) handling:
+    - Tool: [JWT.io](https://jwt.io/)
+- [ ] Test "Remember me" functionality for security weaknesses
+
+---
+
+## Session Management
+
+- [ ] Session fixation
+- [ ] Cross-Site Request Forgery (CSRF) protection
+- [ ] Token predictability
+- [ ] Secure cookie flags (HTTPOnly, Secure)
+- [ ] Session expiration upon logout
+
+---
+
+## Input Handling
+
+- [ ] Test for Reflected XSS:
+    - Tool: [Dalfox](https://github.com/hahwul/dalfox)
+- [ ] Test for SQL Injection:
+    - Tools: [SQLmap](https://sqlmap.org/), [Nuclei SQLi Templates](https://github.com/projectdiscovery/nuclei-templates/tree/master/vulnerabilities/sqli)
+- [ ] Test for Local File Inclusion (LFI):
+    - Tool: [Nuclei LFI Templates](https://github.com/projectdiscovery/nuclei-templates/tree/master/vulnerabilities/lfi)
+- [ ] Server-Side Request Forgery (SSRF):
+    - Tool: [Gopherus](https://github.com/tarunkant/Gopherus)
+- [ ] Open Redirect testing
+- [ ] OS command injection
+
+---
+
+## Error Handling
+
+- [ ] Trigger and analyze custom error pages
+- [ ] Identify HTTP header injection
+- [ ] Use fuzzing to generate error codes:
+    - Tool: [Burp Suite Fuzzer](https://portswigger.net/burp)
+- [ ] Try unsupported HTTP verbs (e.g., PATCH, DEBUG)
+
+---
+
+## Application Logic
+
+- [ ] Identify logic attack surface (multi-step processes, business logic flaws)
+- [ ] Check for improper reliance on client-side validation
+- [ ] Check for IDOR (Insecure Direct Object References) in sensitive transactions
+- [ ] Reuse gift or discount codes for logic flaws
+- [ ] Check payment form handling of sensitive information like CVV
+
+---
+
+## Other Checks
+
+### CAPTCHA Bypass
+
+- [ ] Bypass CAPTCHA using OCR:
+    - Tool: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)
+- [ ] Test CAPTCHA replay using old values
+
+### Security Headers
+
+- [ ] Check for missing headers:
+    - Headers: `X-XSS-Protection`, `Strict-Transport-Security`, `Content-Security-Policy`, `X-Frame-Options`, etc.
+
+---
+
+This methodology should serve as a comprehensive guide to bug bounty hunting, with a strong focus on recon, enumeration, web application security,
