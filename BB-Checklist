@@ -1,182 +1,212 @@
-Here's the cleaned-up and enhanced Bug Bounty Methodology, with some additional tools and resources included where necessary:
+# BB-Checklist
+
+Condensed pre-flight and per-target checklist. Pair with the full methodology in [`README.md`](README.md). Tick items as you go; not every item applies to every program — use judgment.
 
 ---
 
-# Bug Bounty Methodology
+## Pre-Engagement
 
-This methodology outlines the steps and tools necessary for various scopes in bug bounty hunting, including reconnaissance, user management, input handling, and application logic checks. The tools listed are industry-standard and commonly used for bug bounty activities.
-
----
-
-## Recon Phase
-
-### Large Scope: Company with Multiple Domains
-
-- [ ] Get ASN for IP ranges: 
-    - Tools: [Amass](https://github.com/OWASP/Amass), [Asnlookup](https://github.com/yassineaboukir/Asnlookup), [Metabigor](https://github.com/j3ssie/metabigor), [BGP](https://bgp.he.net/)
-- [ ] Review latest [acquisitions](https://www.crunchbase.com/)
-- [ ] Get relationships by registrants:
-    - Tool: [ViewDNS](https://viewdns.info/reversewhois/)
-- [ ] Repeat "Medium Scope" process for each domain.
+- [ ] Read program scope **in full** — in-scope assets, out-of-scope assets, testing rules
+- [ ] Note prohibited activities (DoS, social eng., physical, automated scanning limits)
+- [ ] Note rate-limit / volume rules
+- [ ] Note severity matrix and known-issue list
+- [ ] Set Burp/Caido scope to match in-scope assets exactly
+- [ ] Configure upstream proxy (residential / VPN) if program requires
+- [ ] Set unique user-agent if program requires attribution
+- [ ] Create two test accounts (for IDOR/BAC testing) where allowed
 
 ---
 
-### Medium Scope: Single Domain
+## Recon
 
-- [ ] Subdomain enumeration: 
-    - Tools: [Amass](https://github.com/OWASP/Amass), [Subfinder](https://github.com/projectdiscovery/subfinder)
-- [ ] Subdomain bruteforce: 
-    - Tools: [PureDNS](https://github.com/d3mondev/puredns), [Wordlist](https://gist.github.com/six2dez/a307a04a222fab5a57466c51e1569acf)
-- [ ] Subdomain permutation: 
-    - Tools: [Gotator](https://github.com/Josue87/gotator), [Ripgen](https://github.com/resyncgg/ripgen), [Wordlist](https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4)
-- [ ] Identify alive subdomains:
-    - Tool: [Httpx](https://github.com/projectdiscovery/httpx)
-- [ ] Subdomain takeovers:
-    - Tool: [Nuclei Takeovers](https://github.com/projectdiscovery/nuclei-templates/tree/master/takeovers)
-- [ ] Cloud asset discovery:
-    - Tool: [CloudEnum](https://github.com/initstring/cloud_enum)
-- [ ] Shodan search
-- [ ] Zone transfer:
-    - Reference: [Pentest Book on DNS Enumeration](https://six2dez.gitbook.io/pentest-book/enumeration/ports#port-53-dns)
-- [ ] Recursive subdomain search
-- [ ] Screenshot subdomains:
-    - Tools: [Gowitness](https://github.com/sensepost/gowitness), [WebScreenshot](https://github.com/maaaaz/webscreenshot), [Aquatone](https://github.com/michenriksen/aquatone)
+### Org / Multi-Domain
+- [ ] ASN → IP ranges mapped
+- [ ] Acquisitions / subsidiaries identified
+- [ ] Reverse-whois pivots run
+- [ ] Favicon / trademark hash pivots run
+- [ ] GitHub org & employees searched for leaks
 
----
+### Per Domain
+- [ ] Passive subdomain enum (Amass, Subfinder, Assetfinder, crt.sh)
+- [ ] Active bruteforce (PureDNS + wordlist)
+- [ ] Permutation set (Gotator / alterx)
+- [ ] Resolved via dnsx, probed via httpx
+- [ ] Subdomain takeover scan (nuclei, subzy)
+- [ ] Cloud asset sweep (cloud_enum, S3Scanner)
+- [ ] Visual recon (gowitness)
+- [ ] Historical URLs collected (gau, waybackurls)
 
-### Small Scope: Single Website
-
-- [ ] Identify web server, technologies, and database:
-    - Tool: [Httpx](https://github.com/projectdiscovery/httpx)
-- [ ] Locate common files like `/robots.txt`, `/crossdomain.xml`, `/sitemap.xml`, etc.
-- [ ] Review source code comments:
-    - Tool: Burp Engagement Tools
-- [ ] Directory enumeration:
-    - Tools: [FFUF](https://github.com/ffuf/ffuf), [OneListForAll Wordlist](https://github.com/six2dez/OneListForAll)
-- [ ] Find leaked IDs and emails:
-    - Tool: [Pwndb](https://github.com/davidtavarez/pwndb)
-- [ ] Identify WAF:
-    - Tools: [WhatWaf](https://github.com/Ekultek/WhatWaf), [Wafw00f](https://github.com/EnableSecurity/wafw00f)
-- [ ] Google and GitHub dorking:
-    - Tools: [Githound](https://github.com/tillson/git-hound), [GitDorks Go](https://github.com/damit5/gitdorks_go)
-- [ ] Get URLs:
-    - Tools: [Gau](https://github.com/lc/gau), [Waybackurls](https://github.com/tomnomnom/waybackurls), [Gospider](https://github.com/jaeles-project/gospider)
-- [ ] Check for vulnerable URLs:
-    - Tool: [GF Patterns](https://github.com/1ndianl33t/Gf-Patterns)
-- [ ] Automated XSS scanning:
-    - Tool: [Dalfox](https://github.com/hahwul/dalfox)
-- [ ] Locate admin and login panels
-- [ ] Broken link hijacking:
-    - Tool: [BLC](https://github.com/stevenvachon/broken-link-checker)
-- [ ] Get all JavaScript files:
-    - Tools: [SubJS](https://github.com/lc/subjs), [xnLinkFinder](https://github.com/xnl-h4ck3r/xnLinkFinder)
-- [ ] Analyze JS for hardcoded APIs and secrets:
-    - Tools: [Nuclei Tokens](https://github.com/projectdiscovery/nuclei-templates/tree/4e3f843e15c68f816f0ef6abce5d30b6cf6d4a30/exposures/tokens)
-- [ ] Run automated scanners:
-    - Tool: [Nuclei](https://github.com/projectdiscovery/nuclei)
-- [ ] Test CORS:
-    - Tools: [CORScanner](https://github.com/chenjj/CORScanner), [Corsy](https://github.com/s0md3v/Corsy)
+### Per Host
+- [ ] Tech fingerprint (httpx, Wappalyzer)
+- [ ] Common files checked (`robots.txt`, `sitemap.xml`, `.well-known/`, `.git/`, `.env`)
+- [ ] Full crawl + passive URL merge
+- [ ] Content discovery (feroxbuster / ffuf)
+- [ ] Parameter discovery (Arjun / x8)
+- [ ] Nuclei sweep (medium+ severity)
+- [ ] All JS files pulled and reviewed
 
 ---
 
-## Network Recon
+## Network
 
-- [ ] Check if ICMP packets are allowed
-- [ ] Check DMARC/SPF policies:
-    - Tool: [SpoofCheck](https://github.com/BishopFox/spoofcheck)
-- [ ] Open ports with [Shodan](https://www.shodan.io/)
-- [ ] Port scan:
-    - Tool: [Nmap](https://nmap.org/)
-- [ ] Check UDP ports:
-    - Tools: [Udp-proto-scanner](https://github.com/CiscoCXSecurity/udp-proto-scanner), Nmap
-- [ ] SSL/TLS testing:
-    - Tool: [TestSSL](https://github.com/drwetter/testssl.sh)
-- [ ] Password spraying for discovered services:
-    - Tool: [Brutespray](https://github.com/x90skysn3k/brutespray)
+- [ ] Full TCP scan (`nmap -p-`)
+- [ ] Service version detection (`-sCV` on open ports)
+- [ ] UDP top 200 ports
+- [ ] TLS audit (testssl.sh)
+- [ ] DMARC / SPF / DKIM check
+- [ ] Exposed admin services flagged (Redis, Mongo, Elasticsearch, Docker API, Kubernetes API)
 
 ---
 
-## User Management
+## JavaScript
 
-### Registration
-
-- [ ] Duplicate registration (using variants like `user+1@mail.com`)
-- [ ] Username enumeration
-- [ ] Weak password policy checks
-- [ ] Rate-limiting on registration
-- [ ] Check for XSS in username or email fields
-
-### Authentication
-
-- [ ] Username enumeration on login forms
-- [ ] Password guessing resilience
-- [ ] Account recovery mechanism
-- [ ] Session management and resilience to brute force
-- [ ] Check OAuth and SAML login mechanisms for flaws
-- [ ] Test JWT (JSON Web Token) handling:
-    - Tool: [JWT.io](https://jwt.io/)
-- [ ] Test "Remember me" functionality for security weaknesses
+- [ ] All JS files collected (subjs / katana)
+- [ ] Endpoints extracted (LinkFinder / xnLinkFinder / JSluice)
+- [ ] Secrets scan (trufflehog / SecretFinder / Nosey Parker)
+- [ ] Source maps pulled (if present)
+- [ ] DOM sinks reviewed manually
+- [ ] postMessage handlers reviewed
 
 ---
 
-## Session Management
+## API
 
-- [ ] Session fixation
-- [ ] Cross-Site Request Forgery (CSRF) protection
-- [ ] Token predictability
-- [ ] Secure cookie flags (HTTPOnly, Secure)
-- [ ] Session expiration upon logout
+### REST
+- [ ] OpenAPI / Swagger / docs endpoint located
+- [ ] Verb tampering tested on key endpoints
+- [ ] Content-type swap tested
+- [ ] Mass assignment payloads tried
+- [ ] Rate-limit bypass headers tested
+- [ ] Old API versions probed
+
+### GraphQL
+- [ ] Introspection enabled? (or use clairvoyance)
+- [ ] IDE accessible (`/graphiql`, `/playground`)?
+- [ ] Field suggestions on
+- [ ] Batching / aliasing tested
+- [ ] Sensitive mutations enumerated
+
+---
+
+## Authentication
+
+- [ ] Username enumeration (login / register / reset / timing)
+- [ ] Password policy reviewed
+- [ ] Brute force / lockout behavior tested
+- [ ] 2FA bypass attempts (response tamper, rate limit, reuse)
+- [ ] Password reset — token reuse, host header injection, multi-email
+- [ ] OAuth flow — `redirect_uri`, `state`, scope
+- [ ] SAML — signature wrapping, comment injection (if applicable)
+- [ ] JWT — `alg: none`, weak HMAC secret, `kid` injection
+- [ ] Magic links — entropy, expiry, reuse
+
+---
+
+## Session
+
+- [ ] Session ID regenerated on login (fixation)
+- [ ] CSRF tokens validated server-side and bound to user
+- [ ] Cookie flags: `HttpOnly`, `Secure`, `SameSite`
+- [ ] Logout invalidates server-side
+- [ ] Token reusable after logout? (must be no)
+
+---
+
+## Authorization (IDOR / BAC)
+
+- [ ] Horizontal swap tested on every resource ID
+- [ ] Vertical — low-priv user hitting admin endpoints directly
+- [ ] Method-based — endpoint hidden in UI accessible via direct request
+- [ ] Parameter pollution (`?user=a&user=b`)
+- [ ] Autorize / AuthMatrix run across the app
+- [ ] UUID v1 vs v4 checked (predictability)
+- [ ] Tenant isolation tested in multi-tenant apps
 
 ---
 
 ## Input Handling
 
-- [ ] Test for Reflected XSS:
-    - Tool: [Dalfox](https://github.com/hahwul/dalfox)
-- [ ] Test for SQL Injection:
-    - Tools: [SQLmap](https://sqlmap.org/), [Nuclei SQLi Templates](https://github.com/projectdiscovery/nuclei-templates/tree/master/vulnerabilities/sqli)
-- [ ] Test for Local File Inclusion (LFI):
-    - Tool: [Nuclei LFI Templates](https://github.com/projectdiscovery/nuclei-templates/tree/master/vulnerabilities/lfi)
-- [ ] Server-Side Request Forgery (SSRF):
-    - Tool: [Gopherus](https://github.com/tarunkant/Gopherus)
-- [ ] Open Redirect testing
-- [ ] OS command injection
+- [ ] Reflected XSS sweep (Dalfox)
+- [ ] Stored XSS — every user-controlled field that renders to others
+- [ ] DOM XSS via DOM Invader
+- [ ] Blind XSS payloads planted in admin-facing fields
+- [ ] SQLi probed (manual + sqlmap where allowed)
+- [ ] NoSQLi operators tested on JSON inputs
+- [ ] SSRF — all URL-accepting params tested incl. blind/OOB
+- [ ] SSTI polyglot probe
+- [ ] XXE — every XML / SVG / OOXML upload point
+- [ ] LFI / path traversal — all file params
+- [ ] Command injection — separators on any system-call-adjacent input
+- [ ] Prototype pollution — `__proto__` in JSON bodies and URL params
+- [ ] File upload — extension, MIME, magic bytes, zip slip
 
 ---
 
-## Error Handling
+## Business Logic
 
-- [ ] Trigger and analyze custom error pages
-- [ ] Identify HTTP header injection
-- [ ] Use fuzzing to generate error codes:
-    - Tool: [Burp Suite Fuzzer](https://portswigger.net/burp)
-- [ ] Try unsupported HTTP verbs (e.g., PATCH, DEBUG)
-
----
-
-## Application Logic
-
-- [ ] Identify logic attack surface (multi-step processes, business logic flaws)
-- [ ] Check for improper reliance on client-side validation
-- [ ] Check for IDOR (Insecure Direct Object References) in sensitive transactions
-- [ ] Reuse gift or discount codes for logic flaws
-- [ ] Check payment form handling of sensitive information like CVV
+- [ ] Multi-step flows replayed / reordered / skipped
+- [ ] Price / quantity manipulation (negative, decimal, huge, overflow)
+- [ ] Coupon / promo stacking, reuse, race-apply
+- [ ] Workflow gates bypassable (KYC, age, ToS)
+- [ ] Client-side validation only? Tamper to confirm
+- [ ] Currency confusion / rounding edge cases
 
 ---
 
-## Other Checks
+## Race Conditions
 
-### CAPTCHA Bypass
-
-- [ ] Bypass CAPTCHA using OCR:
-    - Tool: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)
-- [ ] Test CAPTCHA replay using old values
-
-### Security Headers
-
-- [ ] Check for missing headers:
-    - Headers: `X-XSS-Protection`, `Strict-Transport-Security`, `Content-Security-Policy`, `X-Frame-Options`, etc.
+- [ ] Single-packet attack on coupon/voucher redemption
+- [ ] Race on MFA verify / OTP submit
+- [ ] Race on follow / vote / like / withdraw / withdraw-to-bank
+- [ ] Turbo Intruder race.py prepared
 
 ---
 
-This methodology should serve as a comprehensive guide to bug bounty hunting, with a strong focus on recon, enumeration, web application security,
+## Request Smuggling
+
+- [ ] CL.TE / TE.CL / TE.TE checked (smuggler, Burp HRS extension)
+- [ ] HTTP/2 downgrade smuggling checked
+- [ ] Impact confirmed before reporting (no probe-only reports)
+
+---
+
+## Cloud
+
+- [ ] S3 buckets enumerated and ACLs checked
+- [ ] GCP / Azure equivalents
+- [ ] SSRF → metadata service tested
+- [ ] Origin IP disclosure (CloudFail) where CDN is between you and origin
+- [ ] Public AWS keys / GCP service account JSON in JS or GitHub?
+
+---
+
+## Misc
+
+- [ ] Security header review (informational on most programs)
+- [ ] CAPTCHA reuse / removal / OCR
+- [ ] Open redirect — kept on hand as chain primitive
+- [ ] Cache poisoning (Param Miner)
+- [ ] Web cache deception
+- [ ] Email header injection on contact forms
+
+---
+
+## Pre-Submit (per report)
+
+- [ ] Reproducible from clean session
+- [ ] Steps numbered, no missing context
+- [ ] Impact tied to **this program's** assets and data
+- [ ] No unrelated findings bundled in
+- [ ] Screenshot / short video attached, own creds redacted
+- [ ] Severity reasoned, not just claimed
+- [ ] Remediation suggestion included, brief
+- [ ] No automated-scanner output dumped raw
+
+---
+
+## Post-Submit Hygiene
+
+- [ ] Findings logged privately with timestamps
+- [ ] No public disclosure before program permits
+- [ ] Follow-up scheduled — don't ghost triage
+- [ ] If duped, note the public reference and move on
