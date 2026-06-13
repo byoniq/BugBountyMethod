@@ -7,6 +7,7 @@
 A practitioner-focused methodology and checklist for bug bounty hunting and web application penetration testing. Tight, tool-linked, and structured by attack surface.
 
 For the condensed pre-flight checklist, see [`BB-Checklist.md`](BB-Checklist.md).
+For Android mobile app assessments, see [`Mobile-Pentest-Checklist.md`](Mobile-Pentest-Checklist.md) — OWASP MASVS/MASTG-aligned, tool-linked.
 
 ---
 
