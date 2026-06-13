@@ -8,6 +8,7 @@ A practitioner-focused methodology and checklist for bug bounty hunting and web 
 
 For the condensed pre-flight checklist, see [`BB-Checklist.md`](BB-Checklist.md).
 For Android mobile app assessments, see [`Mobile-Pentest-Checklist.md`](Mobile-Pentest-Checklist.md) — OWASP MASVS/MASTG-aligned, tool-linked.
+For iOS, see [`iOS-Pentest-Checklist.md`](iOS-Pentest-Checklist.md) — the iOS companion (IPA, keychain/plist, backups, jailbreak-detection).
 
 ---
 
